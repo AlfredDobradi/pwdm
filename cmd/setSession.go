@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// setSessionCmd represents the setSession command
 var setSessionCmd = &cobra.Command{
 	Use:   "set-session <session-key>",
 	Short: "Sets the session key used for encryption and decryption",
@@ -28,14 +27,4 @@ decrypting values will only work if the same session key was used for encryption
 
 func init() {
 	rootCmd.AddCommand(setSessionCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// setSessionCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// setSessionCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

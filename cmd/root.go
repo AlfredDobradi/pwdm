@@ -37,8 +37,7 @@ var (
 )
 
 var (
-	db         *badger.DB
-	sessionKey []byte
+	db *badger.DB
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -50,8 +49,6 @@ var rootCmd = &cobra.Command{
 		correct key was used for decryption.`,
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	defer func() {
 		if db != nil {
@@ -69,25 +66,16 @@ func init() {
 	cobra.OnInitialize(initConfig)
 	initDatabase()
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pwdm/config.yaml)")
 	rootCmd.PersistentFlags().StringVar(&databasePath, "db-path", "", "path to the database (default is $HOME/.pwdm/store)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))   // nolint
+	viper.BindPFlag("db-path", rootCmd.PersistentFlags().Lookup("db-path")) // nolint
 }
 
-// initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
 
@@ -96,9 +84,8 @@ func initConfig() {
 		viper.SetConfigName("config")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.AutomaticEnv()
 
-	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
@@ -114,33 +101,4 @@ func initDatabase() {
 	}
 
 	cobra.CheckErr(store.Init(path))
-}
-
-func lookupKey(key []byte) ([]byte, error) {
-	var value []byte
-	err := db.View(func(txn *badger.Txn) error {
-		item, err := txn.Get(key)
-		if err != nil {
-			return err
-		}
-
-		value, err = item.ValueCopy(nil)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	return value, err
-}
-
-func storeKey(key, val []byte) error {
-	err := db.Update(func(txn *badger.Txn) error {
-		e := badger.NewEntry(key, val)
-		err := txn.SetEntry(e)
-		return err
-	})
-
-	return err
 }

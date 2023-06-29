@@ -12,7 +12,6 @@ import (
 	"golang.design/x/clipboard"
 )
 
-// getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get <key>",
 	Short: "Returns a stored value by key",
@@ -41,14 +40,6 @@ var getCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(getCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// getCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
 	getCmd.Flags().BoolP("clipboard", "c", false, "Write value to clipboard")
 	getCmd.Flags().BoolP("newline", "n", false, "Add newline character after the value (only when writing to stdout)")
 	viper.BindPFlag("clipboard", getCmd.Flags().Lookup("clipboard")) // nolint
