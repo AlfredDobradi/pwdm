@@ -23,10 +23,13 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/alfreddobradi/pwdm/store"
 	"github.com/spf13/cobra"
 )
+
+var ttl time.Duration
 
 var setSessionCmd = &cobra.Command{
 	Use:   "set-session <session-key>",
@@ -36,7 +39,7 @@ The application has no knowledge of the validity of the session key,
 decrypting values will only work if the same session key was used for encryption`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := store.SetSessionKey([]byte(args[0]))
+		err := store.SetSessionKey([]byte(args[0]), ttl)
 		cobra.CheckErr(err)
 
 		fmt.Printf("Session key was set to \"%s\"\n", args[0])
@@ -45,4 +48,6 @@ decrypting values will only work if the same session key was used for encryption
 
 func init() {
 	rootCmd.AddCommand(setSessionCmd)
+
+	rootCmd.Flags().DurationVar(&ttl, "ttl", 3*time.Minute, "TTL for session key")
 }

@@ -25,6 +25,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"fmt"
+	"time"
 
 	"github.com/alfreddobradi/pwdm/crypto"
 	"github.com/dgraph-io/badger/v3"
@@ -77,14 +78,15 @@ func getSessionKey() ([]byte, error) {
 	return sessionKey, err
 }
 
-func SetSessionKey(key []byte) error {
+func SetSessionKey(key []byte, ttl time.Duration) error {
 	if store == nil {
 		return fmt.Errorf("store not created")
 	}
 
 	sum := md5.Sum(key) // AES encryption takes fixed-length secrets
 	err := store.Update(func(txn *badger.Txn) error {
-		e := badger.NewEntry([]byte(keySessionKey), []byte(fmt.Sprintf("%x", sum)))
+		e := badger.NewEntry([]byte(keySessionKey), []byte(fmt.Sprintf("%x", sum))).
+			WithTTL(ttl)
 		err := txn.SetEntry(e)
 		return err
 	})
